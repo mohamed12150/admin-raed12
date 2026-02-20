@@ -281,11 +281,10 @@ export async function updateOrderStatus(id: string, status: string) {
     .from("orders")
     .update({ status })
     .eq("id", id)
-    .select()
-    .single();
+    .select();
 
   if (error) throw error;
-  return data;
+  return Array.isArray(data) ? data[0] : data;
 }
 
 export async function searchOrders(query: string) {
