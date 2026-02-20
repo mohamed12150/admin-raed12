@@ -122,19 +122,33 @@ export default function OrderDetailsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {order.order_items?.map((item: any) => {
-                    const productName = item.name_ar || item.products?.name_ar || "منتج غير معروف";
+                    const productName =
+                      item.name_ar ||
+                      item.products?.name_ar ||
+                      item.metadata?.productName ||
+                      item.metadata?.name ||
+                      "منتج غير معروف";
+
+                    const quantity =
+                      item.qty ??
+                      item.quantity ??
+                      item.metadata?.quantity ??
+                      item.metadata?.qty ??
+                      1;
+
                     return (
-                    <tr key={item.id}>
-                      <td className="px-8 py-6 font-bold text-slate-900">{productName}</td>
-                      <td className="px-8 py-6 text-sm text-slate-500 font-bold">
-                        {item.metadata?.weight && <div>الوزن: {item.metadata.weight}</div>}
-                        {item.metadata?.cutting && <div>التقطيع: {item.metadata.cutting}</div>}
-                        {item.metadata?.notes && <div className="text-red-500 mt-1">ملاحظة: {item.metadata.notes}</div>}
-                      </td>
-                      <td className="px-8 py-6 font-black">{item.qty}</td>
-                      <td className="px-8 py-6 font-black text-red-600">{item.subtotal?.toLocaleString()} ر.س</td>
-                    </tr>
-                  )})}
+                      <tr key={item.id}>
+                        <td className="px-8 py-6 font-bold text-slate-900">{productName}</td>
+                        <td className="px-8 py-6 text-sm text-slate-500 font-bold">
+                          {item.metadata?.weight && <div>الوزن: {item.metadata.weight}</div>}
+                          {item.metadata?.cutting && <div>التقطيع: {item.metadata.cutting}</div>}
+                          {item.metadata?.notes && <div className="text-red-500 mt-1">ملاحظة: {item.metadata.notes}</div>}
+                        </td>
+                        <td className="px-8 py-6 font-black">{quantity}</td>
+                        <td className="px-8 py-6 font-black text-red-600">{item.subtotal?.toLocaleString()} ر.س</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

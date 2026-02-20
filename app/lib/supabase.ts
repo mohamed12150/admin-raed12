@@ -231,16 +231,10 @@ export async function getOrderById(id: string) {
   if (error) throw error;
   if (!order) return null;
 
-  // Manually fetch items مع ربطها بالمنتجات لعرض الاسم حتى لو لم يُخزن في order_items
+  // Manually fetch items المرتبطة بالطلب
   const { data: items } = await supabase
     .from("order_items")
-    .select(`
-      *,
-      products (
-        name_ar,
-        name_en
-      )
-    `)
+    .select("*")
     .eq("order_id", id);
 
   // Manually fetch profile
