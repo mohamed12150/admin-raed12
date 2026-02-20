@@ -119,9 +119,11 @@ export default function OrderDetailsPage({ params }: any) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {order.order_items?.map((item: any) => (
+                  {order.order_items?.map((item: any) => {
+                    const productName = item.name_ar || item.products?.name_ar || "منتج غير معروف";
+                    return (
                     <tr key={item.id}>
-                      <td className="px-8 py-6 font-bold text-slate-900">{item.name_ar}</td>
+                      <td className="px-8 py-6 font-bold text-slate-900">{productName}</td>
                       <td className="px-8 py-6 text-sm text-slate-500 font-bold">
                         {item.metadata?.weight && <div>الوزن: {item.metadata.weight}</div>}
                         {item.metadata?.cutting && <div>التقطيع: {item.metadata.cutting}</div>}
@@ -130,7 +132,7 @@ export default function OrderDetailsPage({ params }: any) {
                       <td className="px-8 py-6 font-black">{item.qty}</td>
                       <td className="px-8 py-6 font-black text-red-600">{item.subtotal?.toLocaleString()} ر.س</td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
