@@ -3,20 +3,22 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getOrderById, updateOrderStatus } from "@/app/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
-export default function OrderDetailsPage({ params }: any) {
+export default function OrderDetailsPage() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const router = useRouter();
-  
-  // Unwrapping params if necessary (Next.js 15+) or just using it directly
-  const orderId = params.id;
+  const params = useParams();
+  const orderId = typeof params?.id === "string" ? params.id : Array.isArray((params as any)?.id) ? (params as any).id[0] : undefined;
 
   useEffect(() => {
     async function fetchOrder() {
-      if (!orderId) return;
+      if (!orderId) {
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         const data = await getOrderById(orderId);
