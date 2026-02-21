@@ -86,7 +86,6 @@ export default function OrderDetailsPage() {
     ctx.fillText(`المدينة: ${city || "غير محددة"}`, 40, 250);
     ctx.fillText(`العنوان: ${address || "لا يوجد عنوان تفصيلي"}`, 40, 280);
 
-    const statusText = `حالة الطلب: ${order.status || "غير معروفة"}`;
     const paymentText =
       order.payment_method === "cash"
         ? "طريقة الدفع: عند الاستلام"
@@ -94,8 +93,7 @@ export default function OrderDetailsPage() {
         ? "طريقة الدفع: إلكترونية"
         : `طريقة الدفع: ${order.payment_method || "غير محددة"}`;
 
-    ctx.fillText(statusText, 40, 310);
-    ctx.fillText(paymentText, 40, 340);
+    ctx.fillText(paymentText, 40, 310);
 
     ctx.strokeStyle = "#e5e7eb";
     ctx.lineWidth = 1;
