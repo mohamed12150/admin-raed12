@@ -15,6 +15,7 @@ export default function RootLayout({
   const isAuthPage = pathname === "/login";
   const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -57,8 +58,63 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className="antialiased bg-[#fdfdfd] text-[#1e293b]">
+        <div
+          className={`fixed inset-0 bg-black/30 z-30 lg:hidden transition-opacity ${
+            isSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={() => setIsSidebarOpen(false)}
+        >
+          <div
+            className={`absolute right-0 top-0 h-full w-72 bg-white border-l border-slate-100 shadow-xl flex flex-col transform transition-transform ${
+              isSidebarOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="h-16 flex items-center px-6 border-b border-red-50">
+              <div className="flex items-center gap-3">
+                <img src="/logo.svg" alt="الرائد للذبائح" className="w-10 h-10 object-contain" />
+                <div>
+                  <h1 className="text-lg font-extrabold tracking-tight text-slate-900">
+                    الرائد <span className="text-red-600">للذبائح</span>
+                  </h1>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 px-4 py-4 space-y-2 overflow-y-auto font-bold">
+              <NavItem href="/" icon="🏠" label="الرئيسية" />
+              <NavItem href="/orders" icon="🛍️" label="الطلبات" />
+              <NavItem href="/products" icon="🥩" label="المنتجات" />
+              <NavItem href="/categories" icon="📑" label="الأقسام" />
+              <NavItem href="/customers" icon="👥" label="العملاء" />
+              <NavItem href="/banners" icon="🖼️" label="الإعلانات" />
+              <NavItem href="/cutting-methods" icon="🔪" label="طرق التقطيع" />
+              <NavItem href="/reports" icon="📊" label="التقارير" />
+              <NavItem href="/settings" icon="⚙️" label="الإعدادات" />
+            </div>
+            <div className="p-4 border-t border-slate-50">
+              <button
+                onClick={() => {
+                  setIsSidebarOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 w-full text-right group hover:bg-red-50 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold border-2 border-white group-hover:bg-red-600 group-hover:text-white transition-colors">
+                  {user && (user.full_name || user.name) ? (user.full_name || user.name)[0] : "م"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-900 truncate">
+                    {user ? (user.full_name || user.name || user.email || "محمد المشرف") : "محمد المشرف"}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">
+                    تسجيل الخروج
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
         <div className="flex h-screen overflow-hidden">
-          {/* Sidebar */}
           <aside className="w-72 bg-white border-l border-slate-100 flex-shrink-0 hidden lg:flex flex-col shadow-sm z-20">
             <div className="h-20 flex items-center px-8 border-b border-red-50">
               <div className="flex items-center gap-3">
@@ -97,10 +153,16 @@ export default function RootLayout({
             </div>
           </aside>
 
-          {/* Main Content */}
           <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
             <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-8">
               <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm"
+                  onClick={() => setIsSidebarOpen(true)}
+                >
+                  <span className="text-xl">☰</span>
+                </button>
                 <form onSubmit={handleSearch} className="relative hidden md:block">
                   <span className="absolute inset-y-0 right-3 flex items-center text-slate-400 pointer-events-none">🔍</span>
                   <input 
@@ -116,7 +178,7 @@ export default function RootLayout({
                 <Link href="/orders" className="bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all active:scale-95">طلب جديد</Link>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto bg-[#fafafa] p-8">
+            <div className="flex-1 overflow-y-auto bg-[#fafafa] p-4 md:p-8">
               {children}
             </div>
           </main>
