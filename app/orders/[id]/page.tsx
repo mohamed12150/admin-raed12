@@ -32,10 +32,106 @@ export default function OrderDetailsPage() {
     fetchOrder();
   }, [orderId]);
 
-  const handlePrint = () => {
-    if (typeof window !== "undefined") {
-      window.print();
-    }
+  const handleDownloadInvoiceImage = () => {
+    if (!order || typeof document === "undefined") return;
+    const items = order.order_items || [];
+    const width = 900;
+    const baseHeight = 380;
+    const rowHeight = 40;
+    const height = baseHeight + items.length * rowHeight;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 28px system-ui";
+    ctx.fillText("فاتورة طلب", 40, 60);
+
+    ctx.font = "18px system-ui";
+    ctx.fillText(`رقم الطلب: ${order.id.slice(0, 8)}`, 40, 100);
+
+    const createdAt = new Date(order.created_at);
+    const dateText = createdAt.toLocaleString("ar-SA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    ctx.fillText(`التاريخ: ${dateText}`, 40, 130);
+
+    ctx.fillText(`العميل: ${order.profiles?.full_name || "غير مسجل"}`, 40, 160);
+    ctx.fillText(`الجوال: ${order.phone || order.profiles?.phone || "غير متوفر"}`, 40, 190);
+
+    const city = order.city || "";
+    const address = order.address || "";
+    ctx.fillText(`المدينة: ${city || "غير محددة"}`, 40, 220);
+    ctx.fillText(`العنوان: ${address || "لا يوجد عنوان تفصيلي"}`, 40, 250);
+
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, 280);
+    ctx.lineTo(width - 40, 280);
+    ctx.stroke();
+
+    ctx.font = "bold 18px system-ui";
+    ctx.fillText("المنتج", 40, 310);
+    ctx.fillText("الكمية", width / 2, 310);
+    ctx.fillText("الإجمالي", width - 180, 310);
+
+    ctx.beginPath();
+    ctx.moveTo(40, 320);
+    ctx.lineTo(width - 40, 320);
+    ctx.stroke();
+
+    ctx.font = "16px system-ui";
+    let y = 350;
+    items.forEach((item: any) => {
+      const productName =
+        item.name_ar ||
+        item.products?.name_ar ||
+        item.metadata?.productName ||
+        item.metadata?.name ||
+        "منتج غير معروف";
+
+      const quantity =
+        item.qty ??
+        item.quantity ??
+        item.metadata?.quantity ??
+        item.metadata?.qty ??
+        1;
+
+      const subtotal = item.subtotal || 0;
+
+      ctx.fillText(String(productName).slice(0, 30), 40, y);
+      ctx.fillText(String(quantity), width / 2, y);
+      ctx.fillText(`${subtotal.toLocaleString()} ر.س`, width - 220, y);
+
+      y += rowHeight;
+    });
+
+    ctx.beginPath();
+    ctx.moveTo(40, y);
+    ctx.lineTo(width - 40, y);
+    ctx.stroke();
+
+    ctx.font = "bold 20px system-ui";
+    ctx.fillText(
+      `الإجمالي النهائي: ${order.total_amount?.toLocaleString() || 0} ر.س`,
+      40,
+      y + 40
+    );
+
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = `invoice-${order.id.slice(0, 8)}.png`;
+    link.click();
   };
 
   const handleStatusUpdate = async (newStatus: string) => {
@@ -91,10 +187,10 @@ export default function OrderDetailsPage() {
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={handlePrint}
+            onClick={handleDownloadInvoiceImage}
             className="bg-white border border-slate-200 px-6 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-colors"
           >
-            طباعة الفاتورة
+            تحميل الفاتورة كصورة
           </button>
           <div className="relative group">
             <button className="bg-red-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all flex items-center gap-2">
