@@ -36,7 +36,7 @@ export default function OrderDetailsPage() {
     if (!order || typeof document === "undefined") return;
     const items = order.order_items || [];
     const width = 900;
-    const baseHeight = 380;
+    const baseHeight = 420;
     const rowHeight = 60;
     const height = baseHeight + items.length * rowHeight;
     const canvas = document.createElement("canvas");
@@ -48,12 +48,25 @@ export default function OrderDetailsPage() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width, height);
 
-    ctx.fillStyle = "#0f172a";
-    ctx.font = "bold 28px system-ui";
-    ctx.fillText("فاتورة طلب", 40, 60);
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(20, 20, width - 40, height - 40);
 
+    ctx.fillStyle = "#b91c1c";
+    ctx.fillRect(20, 20, width - 40, 90);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 28px system-ui";
+    ctx.fillText("الرائد للذبائح", width - 40, 70);
+
+    ctx.textAlign = "left";
     ctx.font = "18px system-ui";
-    ctx.fillText(`رقم الطلب: ${order.id.slice(0, 8)}`, 40, 100);
+    ctx.fillText("فاتورة طلب", 40, 70);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "18px system-ui";
+    ctx.fillText(`رقم الطلب: ${order.id.slice(0, 8)}`, 40, 130);
 
     const createdAt = new Date(order.created_at);
     const dateText = createdAt.toLocaleString("ar-SA", {
@@ -63,15 +76,26 @@ export default function OrderDetailsPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-    ctx.fillText(`التاريخ: ${dateText}`, 40, 130);
+    ctx.fillText(`التاريخ: ${dateText}`, 40, 160);
 
-    ctx.fillText(`العميل: ${order.profiles?.full_name || "غير مسجل"}`, 40, 160);
-    ctx.fillText(`الجوال: ${order.phone || order.profiles?.phone || "غير متوفر"}`, 40, 190);
+    ctx.fillText(`العميل: ${order.profiles?.full_name || "غير مسجل"}`, 40, 190);
+    ctx.fillText(`الجوال: ${order.phone || order.profiles?.phone || "غير متوفر"}`, 40, 220);
 
     const city = order.city || "";
     const address = order.address || "";
-    ctx.fillText(`المدينة: ${city || "غير محددة"}`, 40, 220);
-    ctx.fillText(`العنوان: ${address || "لا يوجد عنوان تفصيلي"}`, 40, 250);
+    ctx.fillText(`المدينة: ${city || "غير محددة"}`, 40, 250);
+    ctx.fillText(`العنوان: ${address || "لا يوجد عنوان تفصيلي"}`, 40, 280);
+
+    const statusText = `حالة الطلب: ${order.status || "غير معروفة"}`;
+    const paymentText =
+      order.payment_method === "cash"
+        ? "طريقة الدفع: عند الاستلام"
+        : order.payment_method === "online"
+        ? "طريقة الدفع: إلكترونية"
+        : `طريقة الدفع: ${order.payment_method || "غير محددة"}`;
+
+    ctx.fillText(statusText, 40, 310);
+    ctx.fillText(paymentText, 40, 340);
 
     ctx.strokeStyle = "#e5e7eb";
     ctx.lineWidth = 1;
@@ -81,17 +105,17 @@ export default function OrderDetailsPage() {
     ctx.stroke();
 
     ctx.font = "bold 18px system-ui";
-    ctx.fillText("المنتج", 40, 310);
-    ctx.fillText("الكمية", width / 2, 310);
-    ctx.fillText("الإجمالي", width - 180, 310);
+    ctx.fillText("المنتج", 40, 380);
+    ctx.fillText("الكمية", width / 2, 380);
+    ctx.fillText("الإجمالي", width - 180, 380);
 
     ctx.beginPath();
-    ctx.moveTo(40, 320);
-    ctx.lineTo(width - 40, 320);
+    ctx.moveTo(40, 390);
+    ctx.lineTo(width - 40, 390);
     ctx.stroke();
 
     ctx.font = "16px system-ui";
-    let y = 350;
+    let y = 420;
     items.forEach((item: any) => {
       const productName =
         item.name_ar ||
