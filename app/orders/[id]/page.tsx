@@ -32,6 +32,12 @@ export default function OrderDetailsPage() {
     fetchOrder();
   }, [orderId]);
 
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
   const handleStatusUpdate = async (newStatus: string) => {
     if (!order) return;
     try {
@@ -83,7 +89,13 @@ export default function OrderDetailsPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="bg-white border border-slate-200 px-6 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-colors">طباعة الفاتورة</button>
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="bg-white border border-slate-200 px-6 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            طباعة الفاتورة
+          </button>
           <div className="relative group">
             <button className="bg-red-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all flex items-center gap-2">
               <span>{order.status}</span>
