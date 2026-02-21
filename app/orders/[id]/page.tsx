@@ -37,7 +37,7 @@ export default function OrderDetailsPage() {
     const items = order.order_items || [];
     const width = 900;
     const baseHeight = 380;
-    const rowHeight = 40;
+    const rowHeight = 60;
     const height = baseHeight + items.length * rowHeight;
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -108,10 +108,25 @@ export default function OrderDetailsPage() {
         1;
 
       const subtotal = item.subtotal || 0;
+      const cutting =
+        (item.metadata?.cutting as string | undefined) ||
+        (item.metadata?.cut_method as string | undefined) ||
+        (item.metadata?.cut as string | undefined) ||
+        (item.metadata?.cutType as string | undefined) ||
+        (item.metadata?.cutting_method as string | undefined) ||
+        (item.metadata?.cuttingName as string | undefined);
 
       ctx.fillText(String(productName).slice(0, 30), 40, y);
       ctx.fillText(String(quantity), width / 2, y);
       ctx.fillText(`${subtotal.toLocaleString()} ر.س`, width - 220, y);
+
+      if (cutting) {
+        ctx.font = "14px system-ui";
+        ctx.fillStyle = "#6b7280";
+        ctx.fillText(`التقطيع: ${String(cutting).slice(0, 40)}`, 40, y + 22);
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "16px system-ui";
+      }
 
       y += rowHeight;
     });
@@ -244,16 +259,28 @@ export default function OrderDetailsPage() {
                       item.metadata?.qty ??
                       1;
 
+                    const cuttingType =
+                      item.metadata?.cutting ||
+                      item.metadata?.cut_method ||
+                      item.metadata?.cut ||
+                      item.metadata?.cutType ||
+                      item.metadata?.cutting_method ||
+                      item.metadata?.cuttingName;
+
                     return (
                       <tr key={item.id}>
                         <td className="px-8 py-6 font-bold text-slate-900">{productName}</td>
                         <td className="px-8 py-6 text-sm text-slate-500 font-bold">
                           {item.metadata?.weight && <div>الوزن: {item.metadata.weight}</div>}
-                          {item.metadata?.cutting && <div>التقطيع: {item.metadata.cutting}</div>}
-                          {item.metadata?.notes && <div className="text-red-500 mt-1">ملاحظة: {item.metadata.notes}</div>}
+                          {cuttingType && <div>التقطيع: {cuttingType}</div>}
+                          {item.metadata?.notes && (
+                            <div className="text-red-500 mt-1">ملاحظة: {item.metadata.notes}</div>
+                          )}
                         </td>
                         <td className="px-8 py-6 font-black">{quantity}</td>
-                        <td className="px-8 py-6 font-black text-red-600">{item.subtotal?.toLocaleString()} ر.س</td>
+                        <td className="px-8 py-6 font-black text-red-600">
+                          {item.subtotal?.toLocaleString()} ر.س
+                        </td>
                       </tr>
                     );
                   })}
