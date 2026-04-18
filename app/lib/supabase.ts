@@ -67,22 +67,42 @@ export async function updateProduct(id: string, product: any) {
 }
 
 export async function deleteProduct(id: string) {
-  // First, delete related records in product_cutting_methods if they exist
+  // 1. Check if there are any order items for this product to avoid FK errors
+  const { count: orderCount, error: orderCheckError } = await supabase
+    .from("order_items")
+    .select("*", { count: 'exact', head: true })
+    .eq("product_id", id);
+
+  if (orderCheckError) {
+    console.warn("Could not check order_items, proceeding with caution:", orderCheckError);
+  } else if (orderCount && orderCount > 0) {
+    throw new Error(`لا يمكن حذف المنتج لأنه مرتبط بـ ${orderCount} طلبات سابقة. يمكنك إخفاء المنتج (غير متاح) بدلاً من حذفه حفاظاً على سجلات الطلبات.`);
+  }
+
+  // 2. Delete related records in product_cutting_methods
   try {
     await supabase
       .from("product_cutting_methods")
       .delete()
       .eq("product_id", id);
   } catch (err) {
-    console.warn("Could not delete related cutting methods, they might not exist or table is missing:", err);
+    console.warn("Could not delete related cutting methods:", err);
   }
 
-  const { error } = await supabase
+  // 3. Delete the product and verify it was deleted using .select()
+  const { data, error } = await supabase
     .from("products")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .select();
 
   if (error) throw error;
+  
+  if (!data || data.length === 0) {
+    throw new Error("فشل الحذف في قاعدة البيانات. قد يكون السبب نقص الصلاحيات (RLS) أو أن المنتج تم حذفه بالفعل.");
+  }
+  
+  return data;
 }
 
 export async function searchProducts(query: string) {

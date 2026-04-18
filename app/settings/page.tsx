@@ -14,7 +14,9 @@ export default function SettingsPage() {
     delivery_fee: "",
     tax_percentage: "",
     contact_phone: "",
-    is_app_active: true
+    is_app_active: true,
+    bank_account_number: "",
+    bank_iban: ""
   });
 
   useEffect(() => {
@@ -31,7 +33,9 @@ export default function SettingsPage() {
           delivery_fee: data.delivery_fee?.toString() || "0",
           tax_percentage: data.tax_percentage?.toString() || "0",
           contact_phone: data.contact_phone || "",
-          is_app_active: data.is_app_active ?? true
+          is_app_active: data.is_app_active ?? true,
+          bank_account_number: data.bank_account_number || "",
+          bank_iban: data.bank_iban || ""
         });
       }
     } catch (err: any) {
@@ -80,7 +84,9 @@ export default function SettingsPage() {
         delivery_fee: deliveryFee,
         tax_percentage: taxPercentage,
         contact_phone: formData.contact_phone,
-        is_app_active: formData.is_app_active
+        is_app_active: formData.is_app_active,
+        bank_account_number: formData.bank_account_number,
+        bank_iban: formData.bank_iban
       });
 
       setSuccess("تم حفظ الإعدادات بنجاح");
@@ -184,10 +190,40 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              <div className="space-y-6">
+                <h3 className="font-black text-lg border-b border-slate-50 pb-4">الحساب البنكي</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">رقم الحساب</label>
+                    <input
+                      type="text"
+                      placeholder="SA..."
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-red-500/10 text-left ltr tracking-widest"
+                      value={formData.bank_account_number}
+                      onChange={(e) => setFormData({ ...formData, bank_account_number: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">رقم الآيبان (IBAN)</label>
+                    <input
+                      type="text"
+                      placeholder="SA0000000000000000000000"
+                      maxLength={34}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-red-500/10 text-left ltr tracking-widest"
+                      value={formData.bank_iban}
+                      onChange={(e) => setFormData({ ...formData, bank_iban: e.target.value.toUpperCase() })}
+                    />
+                    {formData.bank_iban && formData.bank_iban.length !== 24 && (
+                      <p className="text-xs text-amber-500 font-bold">الآيبان السعودي يتكون من 24 حرفاً ورقماً</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-6 border-t border-slate-50">
-                <button 
+                <button
                   disabled={saving}
-                  type="submit" 
+                  type="submit"
                   className="w-full bg-red-600 text-white px-12 py-4 rounded-2xl font-black shadow-xl shadow-red-100 hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50"
                 >
                   {saving ? "جاري الحفظ..." : "حفظ التغييرات"}

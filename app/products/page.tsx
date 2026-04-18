@@ -70,17 +70,19 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (productId: string) => {
-    if (!confirm("هل تريد حذف هذا المنتج؟")) return;
+    if (!confirm("هل تريد حذف هذا المنتج نهائياً؟")) return;
     try {
-      console.log("Attempting to delete product:", productId);
+      setLoading(true);
       await deleteProduct(productId);
-      console.log("Delete successful");
       setProducts(products.filter((p) => p.id !== productId));
+      alert("تم حذف المنتج بنجاح.");
     } catch (err: any) {
       console.error("Delete failed:", err);
-      const errorMessage = err?.message || err?.details || "فشل حذف المنتج";
+      const errorMessage = err?.message || "فشل حذف المنتج من قاعدة البيانات.";
       setError(`خطأ أثناء الحذف: ${errorMessage}`);
       alert(`فشل الحذف: ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
   };
 

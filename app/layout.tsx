@@ -16,6 +16,7 @@ export default function RootLayout({
   const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [notifStatus, setNotifStatus] = useState<"default" | "granted" | "denied">("default");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -28,7 +29,53 @@ export default function RootLayout({
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+
+    if ("Notification" in window) {
+      setNotifStatus(Notification.permission as any);
+    }
   }, [isAuthPage]);
+
+  const registerServiceWorker = async () => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      alert("متصفحك لا يدعم الإشعارات");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNotifStatus(permission as any);
+    if (permission !== "granted") return;
+
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    await navigator.serviceWorker.ready;
+
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) await existing.unsubscribe();
+
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    });
+
+    await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(sub),
+    });
+  };
+
+  const unsubscribeNotifications = async () => {
+    const reg = await navigator.serviceWorker.getRegistration("/sw.js");
+    if (!reg) return;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    await fetch("/api/subscribe", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: sub.endpoint }),
+    });
+    await sub.unsubscribe();
+    setNotifStatus("default");
+  };
 
   const handleLogout = () => {
     if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
@@ -175,6 +222,19 @@ export default function RootLayout({
                 </form>
               </div>
               <div className="flex items-center gap-3">
+                {notifStatus !== "denied" && (
+                  <button
+                    onClick={notifStatus === "granted" ? unsubscribeNotifications : registerServiceWorker}
+                    title={notifStatus === "granted" ? "إيقاف الإشعارات" : "تفعيل الإشعارات"}
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all text-lg ${
+                      notifStatus === "granted"
+                        ? "bg-green-50 border-green-200 text-green-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+                        : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                    }`}
+                  >
+                    {notifStatus === "granted" ? "🔔" : "🔕"}
+                  </button>
+                )}
                 <Link href="/orders" className="bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all active:scale-95">طلب جديد</Link>
               </div>
             </header>
