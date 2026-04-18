@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
     // Call Supabase Edge Function (API key is stored securely in Supabase secrets)
-    const response = await fetch(`${supabaseUrl}/functions/v1/send-notification-all`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/clever-handler`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
