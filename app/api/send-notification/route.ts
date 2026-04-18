@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.error || "فشل الإرسال");
+      throw new Error(`Edge Function Error (${response.status}): ${JSON.stringify(result)}`);
     }
 
     // Save to notifications history
