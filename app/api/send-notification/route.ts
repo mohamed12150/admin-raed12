@@ -14,8 +14,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "العنوان والرسالة مطلوبان" }, { status: 400 });
     }
 
-    const appId = process.env.ONESIGNAL_APP_ID!;
-    const apiKey = process.env.ONESIGNAL_REST_API_KEY!;
+    const appId = process.env.ONESIGNAL_APP_ID?.trim()!;
+    const apiKey = process.env.ONESIGNAL_REST_API_KEY?.trim()!;
+    console.log("AppID length:", appId?.length, "| Key length:", apiKey?.length, "| Key starts:", apiKey?.substring(0, 15));
 
     const payload = {
       app_id: appId,
