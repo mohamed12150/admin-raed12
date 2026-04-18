@@ -14,17 +14,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "العنوان والرسالة مطلوبان" }, { status: 400 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const appId = process.env.ONESIGNAL_APP_ID!;
+    const apiKey = process.env.ONESIGNAL_REST_API_KEY!;
 
-    // Call Supabase Edge Function (API key is stored securely in Supabase secrets)
-    const response = await fetch(`${supabaseUrl}/functions/v1/clever-handler`, {
+    const payload = {
+      app_id: appId,
+      included_segments: ["All"],
+      headings: { ar: title, en: title },
+      contents: { ar: body, en: body },
+      target_channel: "push",
+      ...(url ? { url } : {}),
+    };
+
+    const response = await fetch("https://api.onesignal.com/notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${supabaseKey}`,
+        "Authorization": `Key ${apiKey}`,
       },
-      body: JSON.stringify({ title, body, url }),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
