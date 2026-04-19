@@ -135,7 +135,7 @@ export default function RootLayout({
               <NavItem href="/customers" icon="👥" label="العملاء" />
               <NavItem href="/banners" icon="🖼️" label="الإعلانات" />
               <NavItem href="/cutting-methods" icon="🔪" label="طرق التقطيع" />
-              {/* <NavItem href="/notifications" icon="🔔" label="الإشعارات" /> */}
+              <NavItem href="/notifications" icon="🔔" label="الإشعارات" />
               <NavItem href="/reports" icon="📊" label="التقارير" />
               <NavItem href="/settings" icon="⚙️" label="الإعدادات" />
             </div>
@@ -181,7 +181,7 @@ export default function RootLayout({
               <NavItem href="/customers" icon="👥" label="العملاء" />
               <NavItem href="/banners" icon="🖼️" label="الإعلانات" />
               <NavItem href="/cutting-methods" icon="🔪" label="طرق التقطيع" />
-              {/* <NavItem href="/notifications" icon="🔔" label="الإشعارات" /> */}
+              <NavItem href="/notifications" icon="🔔" label="الإشعارات" />
               <NavItem href="/reports" icon="📊" label="التقارير" />
               <NavItem href="/settings" icon="⚙️" label="الإعدادات" />
             </div>
